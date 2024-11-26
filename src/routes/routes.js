@@ -1,28 +1,22 @@
 import express from "express";
-import multer from "multer";
-import path from "path";
-import url from "url";
-import { getAllKost, getKost, createKost, updateKost, deleteKost } from "./../controllers/kostController.js"
-
-const dir = new URL("../../", import.meta.url);
-const directoryPath = url.fileURLToPath(dir);
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(directoryPath, "/uploads"));
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname);
-    }
-});
+import {
+    getAllKost,
+    getKost,
+    createKost,
+    updateKost,
+    updateKostImage,
+    deleteKostImage,
+    deleteKost,
+} from "./../controllers/kostController.js";
 
 const router = express.Router();
-const upload = multer({ storage });
 
 router.get("/kost", getAllKost);
+router.post("/kost", createKost);
+router.post("/kost/images", deleteKostImage);
 router.get("/kost/:id", getKost);
-router.post("/kost", upload.array("gambar", 5), createKost);
 router.put("/kost/:id", updateKost);
 router.delete("/kost/:id", deleteKost);
+router.put("/kost/:id/images", updateKostImage);
 
 export default router;

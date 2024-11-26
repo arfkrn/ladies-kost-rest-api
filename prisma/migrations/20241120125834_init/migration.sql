@@ -1,12 +1,14 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE `Kost` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `nama` VARCHAR(100) NOT NULL,
+    `deskripsi` VARCHAR(255) NOT NULL,
+    `harga` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-  - You are about to drop the column `gambar` on the `kost` table. All the data in the column will be lost.
-  - A unique constraint covering the columns `[id]` on the table `Kost` will be added. If there are existing duplicate values, this will fail.
-
-*/
--- AlterTable
-ALTER TABLE `kost` DROP COLUMN `gambar`;
+    UNIQUE INDEX `Kost_id_key`(`id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `KostImages` (
@@ -16,9 +18,6 @@ CREATE TABLE `KostImages` (
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateIndex
-CREATE UNIQUE INDEX `Kost_id_key` ON `Kost`(`id`);
 
 -- AddForeignKey
 ALTER TABLE `KostImages` ADD CONSTRAINT `KostImages_kostId_fkey` FOREIGN KEY (`kostId`) REFERENCES `Kost`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

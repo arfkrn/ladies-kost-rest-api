@@ -7,7 +7,7 @@ const port = 4000;
 const prisma = new PrismaClient();
 
 app.use(express.json());
-app.use("/api", router);
+app.use("/v1/api", router);
 
 const server = app.listen(port, () => {
     console.log("Server running on port: ", port);
@@ -16,9 +16,9 @@ const server = app.listen(port, () => {
 const gracefullShutdown = async () => {
     console.log("Shutting down...");
     server.close(() => {
-        console.log("Http server closed")
+        console.log("Http server closed");
     });
-    
+
     try {
         await prisma.$disconnect();
         console.log("Database connection closed");
@@ -27,7 +27,7 @@ const gracefullShutdown = async () => {
     }
 
     process.exit(0);
-}
+};
 
 process.on("SIGINT", gracefullShutdown);
 process.on("SIGTERM", gracefullShutdown);
