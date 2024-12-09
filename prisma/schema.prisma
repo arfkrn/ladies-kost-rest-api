@@ -26,3 +26,9 @@ model KostImages {
   kostId Int
   imageUrl String
 }
+
+model Users {
+  id Int @id @default(autoincrement())
+  username String @unique @db.VarChar(30)
+  password String
+}
