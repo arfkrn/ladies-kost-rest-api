@@ -9,15 +9,13 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Kost {
   id Int @id @unique @default(autoincrement())
-  nama String @db.VarChar(100)
-  deskripsi String @db.VarChar(255)
-  harga Int
+  nomor String @db.VarChar(100)
   gambar KostImages[]
   createdAt DateTime @default(now())
 }
