@@ -1,17 +1,13 @@
-import { PrismaClient } from "@prisma/client";
-import Joi from "joi";
+import prisma from "../lib/db.js";
+import {
+    registerValidationSchema,
+    loginValidationSchema,
+} from "../validation/authValidation.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const inputValidationSchema = Joi.object({
-    username: Joi.string().required(),
-    password: Joi.string().required(),
-}).options({ abortEarly: false });
-
-const prisma = new PrismaClient();
-
 const login = async (req, res) => {
-    const { error } = inputValidationSchema.validate(req.body);
+    const { error } = loginValidationSchema.validate(req.body);
     if (error) {
         const validationErrors = error.details.map((error) => {
             return error.message.replace(/['"]/g, "");
@@ -32,8 +28,16 @@ const login = async (req, res) => {
             select: {
                 username: true,
                 password: true,
+                role: true,
             },
         });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Username or Password invalid!",
+            });
+        }
 
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
@@ -45,9 +49,9 @@ const login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { username: user.username },
+            { username: user.username, role: user.role },
             process.env.JWT_SECRET,
-            { expiresIn: "2h" }
+            { expiresIn: "1h" }
         );
 
         const data = { username: user.username, token };
@@ -63,7 +67,7 @@ const login = async (req, res) => {
 };
 
 const register = async (req, res) => {
-    const { error } = inputValidationSchema.validate(req.body);
+    const { error } = registerValidationSchema.validate(req.body);
     if (error) {
         const validationErrors = error.details.map((error) => {
             return error.message.replace(/['"]/g, "");
@@ -75,6 +79,26 @@ const register = async (req, res) => {
     }
 
     const { username, password } = req.body;
+
+    try {
+        const user = await prisma.users.findUnique({
+            where: {
+                username,
+            },
+        });
+
+        if (user) {
+            return res
+                .status(409)
+                .json({ success: false, message: "username already exist" });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            token: null,
+            errors: error.message,
+        });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
